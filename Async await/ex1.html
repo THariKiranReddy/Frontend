@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <select id="sel" >
+        <option value="">Ascending Order</option>
+        <option value="asc">asc</option>
+        <option value="dsc">dsc</option>
+    </select>
+    <div id="container"></div>
+</body>
+</html>
+<script>
+    let data=[];
+    async function countryApp(){
+        try{
+        let country=await fetch("https://restcountries.com/v3.1/all?fields=name,flags,population,region,capital");
+        data=await country.json();
+        renderCountries(data);
+        console.log(data);
+        }
+        catch(err){
+          console.log("failed to fetch countries",err);
+        }
+        function renderCountries(array){
+             let container=document.querySelector("#container");
+            container.innerHTML="";
+            array.forEach((element,index)=>{
+         let h3=document.createElement("h3");
+        let img=document.createElement("img");
+        let pop=document.createElement("p");
+        let reg=document.createElement("p");
+        let cap=document.createElement("p");
+        let box=document.createElement("div");
+        pop.toLocaleString("en-IN");
+        img.src=element.flags.png;
+        h3.textContent=element.name.common;
+        img.alt=element.flags.alt || "Flag";
+        reg.textContent="Region:"+element.name.common;
+        cap.textContent="Capital:"+(element.capital?.[0] || "N/A");
+        pop.textContent="Population:"+element.population.toLocaleString();
+        img.style="width:100px;display:block";
+         box.style="border:1px solid black;width:200px;height:250px;padding:20px;margin:10px;display:inline-block;verticalAlign:top";
+         box.append(img,h3,pop,reg,cap);
+         document.querySelector("#container").append(box);
+        document.querySelector("#container").style="display:flex;flex-wrap:wrap;justify-content:flex-start";
+        });
+
+        }
+        renderCountries(data);
+       
+         document.querySelector("#sel").addEventListener("change",()=>{
+            let selectedValue=document.querySelector("#sel").value;
+            let sortedData=[...data];
+            sortedData.sort((a,b)=>{
+                 let name1=a.name.common.toUpperCase();
+            let name2=b.name.common.toUpperCase();
+            if(selectedValue==="asc"){
+             if(name1<name2){
+                return -1;
+            }
+            if(name1>name2){
+                return 1;
+            }
+                return 0;
+            }
+            if(selectedValue==="dsc"){
+             if(name1<name2){
+                return 1;
+            }
+            if(name1>name2){
+                return -1;
+            }
+                return 0;
+            }
+            
+            });
+        renderCountries(sortedData);
+    });
+        }
+    countryApp();
+</script>
